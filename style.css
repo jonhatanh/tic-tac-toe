@@ -17,7 +17,13 @@ body {
   gap: 30px;
 }
 
-#game-board {
+.game-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.game-board {
   margin: 20px;
   outline: 2px solid red;
   display: grid;
@@ -26,7 +32,8 @@ body {
   height: 500px;
   width: 500px;
 }
-#game-board div {
+.game-board button {
+  font-size: 20px;
   outline: 1px solid blue;
   display: flex;
   justify-content: center;
