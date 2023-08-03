@@ -4,17 +4,11 @@
 
 function gameBoardFactory() {
 
-    const board = [
+    let board = [
         [null, null, null],
         [null, null, null],
         [null, null, null],
     ]
-    // const board = [
-    //     ['X', 'X', 'O'],
-    //     ['X', 'O', 'O'],
-    //     ['O', 'X', 'O'],
-    // ]
-
 
     const copyBidiArray = (arr) => {
         return arr.map( el => {
@@ -41,40 +35,52 @@ function gameBoardFactory() {
         return board.flat().includes(null);
     }
 
+    const resetBoard = () => {
+        board = [
+            [null, null, null],
+            [null, null, null],
+            [null, null, null],
+        ];
+    }
+
     return {
         printGameBoard,
         getBoard,
         addMark,
         haveRemainingSpots,
+        resetBoard,
     }
 
 };
 
-function playerFactory(mark) {
+function playerFactory(name, mark) {
     let wins = 0;
     // const makeMove = (board, row, col) => {
     //     const isLegalMove = board.addMark(mark, row, col);
     //     return isLegalMove;
     // }
+    const getName = () => name;
     const getMark = () => mark;
     const getWins = () => wins;
     const addWin = () => wins++;
+    const resetWins = () => wins = 0;
 
 
     return {
+        getName,
         getMark,
-        // makeMove,
         getWins,
         addWin,
+        resetWins,
     };
 }
 
-const gameController = (function() {
+function gameControllerFactory(player1, player2) {
 
     const board = gameBoardFactory();
     const players = [
-        playerFactory('X'),
-        playerFactory('O')
+        player1,
+        player2
     ];
     let round = 1;
     let activePlayer = players[0];
@@ -88,7 +94,23 @@ const gameController = (function() {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     }
 
-    const printPrivateProps = () => console.log(board,players);
+    const resetGame = () => {
+        board.resetBoard();
+        players.forEach(player => player.resetWins());
+        round = 1;
+        resetGameStatus();
+    }
+
+    const resetGameStatus = () => {
+        gameStatus.isLegalMove = false;
+        gameStatus.winner = false;
+        gameStatus.draw = false;
+    }
+
+    const nextRound = () => {
+        board.resetBoard();
+        resetGameStatus();
+    }
 
     const playRound = (row, col) => {
         if(gameStatus.winner || gameStatus.draw) return gameStatus;
@@ -98,9 +120,14 @@ const gameController = (function() {
         gameStatus.winner = checkForWinner();
         if(gameStatus.winner) {
             activePlayer.addWin();
+            round++;
             return gameStatus;
         }
         gameStatus.draw = !gameStatus.winner && !board.haveRemainingSpots();
+        if(gameStatus.draw) {
+            round++;
+            return gameStatus;
+        }
         switchPlayerTurn();
         return gameStatus;
     }
@@ -108,13 +135,6 @@ const gameController = (function() {
 
     const checkForWinner = () => {
         const boardCopy = board.getBoard();
-        // winner = boardCopy.map(row => {
-            //     return row.filter(mark => {
-                //         return mark === activePlayer.getMark();
-                //     }).length === 3;
-                // }).includes(true);
-                // if(winner) return true;
-                
         for(let i = 0; i < 3; i++) {
             //Check in rows
             if (boardCopy[i][0] === activePlayer.getMark() &&
@@ -145,35 +165,45 @@ const gameController = (function() {
         return false;
     }
 
-    const getPlayerTurn = () => players.indexOf(activePlayer) + 1;
+    const getPlayerName = () => activePlayer.getName();
     const getPlayerMark = () => activePlayer.getMark();
     const getPlayersWins = () => [players[0].getWins(), players[1].getWins()];
+    const getPlayersNames = () => [players[0].getName(), players[1].getName()];
     const getRound = () => round;
 
     return {
         playRound,
-        printPrivateProps,
         getBoard: board.getBoard,
-        getPlayerTurn,
         getRound,
+        getPlayerName,
         getPlayerMark,
         getPlayersWins,
+        getPlayersNames,
+        resetGame,
+        nextRound,
     }
 
-})();
+}
 
-gameController.printPrivateProps();
 
 const displayController = (function() {
 
+    ////Game
+    let gameController;
     const boardContainer = document.getElementById('game-board');
     const playerTurnContainer = document.getElementById('player-turn');
     const roundContainer = document.getElementById('round');
     const playersWinsContainer = document.getElementById('players-wins');
 
+    const createGame = (player1, player2) => {
+        gameController = gameControllerFactory(player1, player2);
+        renderGameBoard();
+    }
+
     const renderGameBoard = () => {
         boardContainer.textContent = "";
         const board = gameController.getBoard();
+        console.log(board);
         for(let i = 0; i < 3; i++) {
             for(let j = 0; j < 3; j++) {
                 const button = document.createElement('button');
@@ -184,13 +214,14 @@ const displayController = (function() {
                 boardContainer.appendChild(button);
             }
         }
-        playerTurnContainer.textContent = `Player ${gameController.getPlayerTurn()} (${gameController.getPlayerMark()})`;
+        playerTurnContainer.textContent = `${gameController.getPlayerName()} (${gameController.getPlayerMark()})`;
         roundContainer.textContent = gameController.getRound();
+        const playersNames = gameController.getPlayersNames();
         const playersWins = gameController.getPlayersWins();
         playersWinsContainer.innerHTML = `
-        <b>Player 1:</b> ${playersWins[0]}
+        <b>${playersNames[0]}:</b> ${playersWins[0]}
         <br>
-        <b>Player 2:</b> ${playersWins[1]}`;
+        <b>${playersNames[1]}:</b> ${playersWins[1]}`;
     }
 
     const playRound = function (e) {
@@ -201,9 +232,17 @@ const displayController = (function() {
         console.log(gameStatus);
         if(gameStatus.isLegalMove) {
             if(gameStatus.winner) {
-
+                modal.classList.remove('hidden');
+                modal.classList.add('show');
+                confirmWinnerModal.classList.add('show');
+                winnerNameSpan.textContent = gameController.getPlayerName();
+                gameController.nextRound();          
             } else if (gameStatus.draw) {
-
+                modal.classList.remove('hidden');
+                modal.classList.add('show');
+                confirmWinnerModal.classList.add('show');
+                winnerNameSpan.textContent = 'DRAW';
+                gameController.nextRound();    
             } else {
 
             }
@@ -228,59 +267,90 @@ const displayController = (function() {
         }
     }, true)
 
+
+    ////Modal
+    const modal = document.getElementById('modal');
+    const gameForm = document.getElementById('gameForm');
+    const openModalBtn = document.getElementById('openModalBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const confirmWinnerModal = document.getElementById('winnerModal');
+    const confirmWinnerBtn = document.getElementById('confirmWinner');
+    const winnerNameSpan = document.getElementById('winnerName');
+    const resetBtn = document.getElementById('resetBtn');
+    openModalBtn.addEventListener('click', (e)=> {
+        modal.classList.remove('hidden');
+        gameForm.classList.remove('hidden');
+        modal.classList.add('show');
+        gameForm.classList.add('show');
+    })
+    closeModalBtn.addEventListener('click', (e)=> {
+        modal.classList.add('hidde');
+        gameForm.classList.add('hidde');
+    })
+    modal.addEventListener('animationend', (e) => {
+        if(e.animationName !== 'closeModal') return;
+        console.log(e);
+        modal.classList.remove('show');
+        gameForm.classList.remove('show');
+        confirmWinnerModal.classList.remove('show');
+        modal.classList.remove('hidde');
+        gameForm.classList.remove('hidde');
+        confirmWinnerModal.classList.remove('hidde');
+        modal.classList.add('hidden');
+        gameForm.classList.add('hidden');
+    })
+    confirmWinnerBtn.addEventListener('click', e => {
+        modal.classList.add('hidde');
+        confirmWinnerModal.classList.add('hidde');
+    })
+    resetBtn.addEventListener('click', e => {
+        gameController.resetGame();
+        renderGameBoard();
+    })
+
+    gameForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = getFormData(e.target);
+
+        const player1 = playerFactory(formData.player1Name, formData.player1Mark);
+        const player2 = playerFactory(formData.player2Name, formData.player2Mark);
+        // e.target.reset();
+        createGame(player1,player2);
+        modal.classList.add('hidde');
+        gameForm.classList.add('hidde');
+    })
+
+    function getFormData(form) {
+        const data = {
+            player1Name: form["player-1"].value.trim(),
+            player1Mark: form["player-1-mark"].value.trim(),
+            player2Name: form["player-2"].value.trim(),
+            player2Mark: form["player-2-mark"].value.trim(),
+        }
+        data.player1Name = data.player1Name === "" 
+            ? 'Player 1' : data.player1Name;
+        data.player1Mark = data.player1Mark === "" 
+            ? 'X' : data.player1Mark;
+        data.player2Name = data.player2Name === "" 
+            ? 'Player 2' : data.player2Name;
+        data.player2Mark = data.player2Mark === "" 
+            ? 'O' : data.player2Mark;
+        console.log(data);
+        return data;
+    }
+
+
     return {
+        createGame,
         renderGameBoard,
     }
 
 })();
 
-displayController.renderGameBoard();
+
+displayController.createGame(
+    playerFactory('Player 1','X'),
+    playerFactory('Player 2','O')
+);
 
 
-//Modal
-const modal = document.getElementById('modal');
-const gameForm = document.getElementById('gameForm');
-const openModalBtn = document.getElementById('openModalBtn');
-const closeModalBtn = document.getElementById('closeModalBtn');
-openModalBtn.addEventListener('click', (e)=> {
-    modal.classList.add('show');
-    gameForm.classList.add('show');
-})
-closeModalBtn.addEventListener('click', (e)=> {
-    modal.classList.add('hidde');
-    gameForm.classList.add('hidde');
-})
-modal.addEventListener('animationend', (e) => {
-    if(e.animationName !== 'closeModal') return;
-    modal.classList.remove('show');
-    gameForm.classList.remove('show');
-    modal.classList.remove('hidde');
-    gameForm.classList.remove('hidde');
-})
-
-gameForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = getFormData(e.target);
-    
-    const newBook = new Book(
-        formData.title,
-        formData.author,
-        formData.pages,
-        formData.status,
-        formData.cover,
-        )
-    console.log(formData);
-    e.target.reset();
-    library.addBookToLibrary(newBook);
-    library.showBooks();
-})
-function getFormData(form) {
-    const data = {
-        title: form.title.value.trim(),
-        author: form.author.value.trim(),
-        pages: form.pages.value,
-        status: form.status.value,
-        cover: form.cover.value.trim() === "" ? null : form.cover.value.trim(),
-    }
-    return data;
-}

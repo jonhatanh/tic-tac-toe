@@ -10,9 +10,9 @@
 <body>
     <div class="container">
         <header>
-            <button id="openModalBtn" class="btn-header"><i class="fa-solid fa-clock-rotate-left"></i> <span>Reset</span></button>
+            <button id="resetBtn" class="btn-header"><i class="fa-solid fa-clock-rotate-left"></i> <span>Reset</span></button>
             <h1>Tic Tac Toe</h1>
-            <button class="btn-header"><i class="fa-solid fa-house"></i> <span>Home</span></button>
+            <button id="openModalBtn" class="btn-header"><i class="fa-solid fa-house"></i> <span>Home</span></button>
         </header>
         <div class="game-info">
             <p class="playerTurn">Turn:<span id="player-turn"></span></p>
@@ -46,16 +46,20 @@
                 </div>
                 <div class="form-item">
                     <label for="player-2-mark">Mark</label>
-                    <input type="text" name="player-2-mark" id="player-2-mark" minlength="1" maxlength="3" placeholder="X">
+                    <input type="text" name="player-2-mark" id="player-2-mark" minlength="1" maxlength="3" placeholder="O">
                 </div>
             </fieldset>
             <div class="form-item">
-                <button id="addBookBtn" type="submit">Add</button>
+                <button id="addBookBtn" type="submit">Start Game</button>
             </div>
             <div class="form-item">
                 <button id="closeModalBtn" type="button">Cancel</button>
             </div>
         </form>
+        <div class="winner-modal" id="winnerModal">
+            <p>WINNER<span id="winnerName">Jonhatan</span></p>
+            <button id="confirmWinner" type="button">Continue</button>
+        </div>
     </div>
 
     <script src="main.js"></script>
