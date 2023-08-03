@@ -9,6 +9,12 @@ function gameBoardFactory() {
         [null, null, null],
         [null, null, null],
     ]
+    // const board = [
+    //     ['X', 'X', 'O'],
+    //     ['X', 'O', 'O'],
+    //     ['O', 'X', 'O'],
+    // ]
+
 
     const copyBidiArray = (arr) => {
         return arr.map( el => {
@@ -31,10 +37,15 @@ function gameBoardFactory() {
         return true;
     }
 
+    const haveRemainingSpots = () => {
+        return board.flat().includes(null);
+    }
+
     return {
         printGameBoard,
         getBoard,
         addMark,
+        haveRemainingSpots,
     }
 
 };
@@ -65,6 +76,11 @@ const gameController = (function() {
     ];
     let round = 1;
     let activePlayer = players[0];
+    const gameStatus = {
+        isLegalMove: false,
+        winner: false,
+        draw: false,
+    };
 
     const switchPlayerTurn = () => {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
@@ -73,10 +89,54 @@ const gameController = (function() {
     const printPrivateProps = () => console.log(board,players);
 
     const playRound = (row, col) => {
-        const isLegalMove = board.addMark(activePlayer.getMark(), row, col);
-        if(!isLegalMove) return false;
+        if(gameStatus.winner || gameStatus.draw) return gameStatus;
+
+        gameStatus.isLegalMove = board.addMark(activePlayer.getMark(), row, col);
+        if(!gameStatus.isLegalMove) return gameStatus;
+        gameStatus.winner = checkForWinner();
+        gameStatus.draw = !gameStatus.winner && !board.haveRemainingSpots();
         switchPlayerTurn();
-        return true;
+        return gameStatus;
+    }
+
+
+    const checkForWinner = () => {
+        const boardCopy = board.getBoard();
+        // winner = boardCopy.map(row => {
+            //     return row.filter(mark => {
+                //         return mark === activePlayer.getMark();
+                //     }).length === 3;
+                // }).includes(true);
+                // if(winner) return true;
+                
+        for(let i = 0; i < 3; i++) {
+            //Check in rows
+            if (boardCopy[i][0] === activePlayer.getMark() &&
+            boardCopy[i][1] === activePlayer.getMark() &&
+            boardCopy[i][2] === activePlayer.getMark()){
+                return true;
+            }
+            //Check in cols
+            if (boardCopy[0][i] === activePlayer.getMark() &&
+            boardCopy[1][i] === activePlayer.getMark() &&
+            boardCopy[2][i] === activePlayer.getMark()){
+                return true;
+            }
+            
+        }
+        //Check in diagonal
+        if (boardCopy[0][0] === activePlayer.getMark() &&
+            boardCopy[1][1] === activePlayer.getMark() &&
+            boardCopy[2][2] === activePlayer.getMark()){
+                return true;
+        }
+        if (boardCopy[0][2] === activePlayer.getMark() &&
+        boardCopy[1][1] === activePlayer.getMark() &&
+        boardCopy[2][0] === activePlayer.getMark()){
+            return true;
+        }
+        
+        return false;
     }
 
     const getPlayerTurn = () => players.indexOf(activePlayer) + 1;
@@ -120,8 +180,16 @@ const displayController = (function() {
         if(e.target.dataset.row === undefined) return;
         const row = e.target.dataset.row;
         const col = e.target.dataset.col;
-        const isLegalMove = gameController.playRound(row,col);
-        if(isLegalMove) {
+        const gameStatus = gameController.playRound(row,col);
+        console.log(gameStatus);
+        if(gameStatus.isLegalMove) {
+            if(gameStatus.winner) {
+
+            } else if (gameStatus.draw) {
+
+            } else {
+
+            }
             renderGameBoard();
         } else {
             console.log('Illegal Move');
