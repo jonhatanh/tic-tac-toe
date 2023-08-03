@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap');
 
-$primary: #a855f7;
-$secondary: #6d28d9;
-$cards-background: #f5f3ff;
-$text-white: white;
-$text-black: black;
-$background: white;
+// $primary: #a855f7;
+// $secondary: #6d28d9;
+// $cards-background: #f5f3ff;
+// $text-white: white;
+// $text-black: black;
+// $background: white;
 
-:root {
-    --primary: #{$primary};
-    --secondary: #{$secondary};
-    --cards-background: #{$cards-background};
-    --text-white: #{$text-white};
-    --text-black: #{$text-black};
-    --background: #{$background};
-}
+// :root {
+//     --primary: #{$primary};
+//     --secondary: #{$secondary};
+//     --cards-background: #{$cards-background};
+//     --text-white: #{$text-white};
+//     --text-black: #{$text-black};
+//     --background: #{$background};
+// }
 
 * {
     box-sizing: border-box;
@@ -35,12 +35,14 @@ button,input {
     font-size: inherit;
     font-weight: inherit;
 }
+button {
+    cursor: pointer;
+}
 
 .container {
     display: grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr 1fr 600px;
-    // align-items: start;
     gap: 20px;
     padding: 0 20px;
     margin: auto 0;
@@ -49,12 +51,18 @@ button,input {
 
     header {
         display: flex;
+        flex-wrap: wrap;
         margin: 30px 0;
         justify-content: space-between;
         align-items: center;
         gap: 15px;
         h1 {
+            text-align: center;
             font-size: 2rem;
+            @media (max-width: 380px){
+                order: -1;
+                width: 100%;
+            }
         }
 
         .btn-header {
@@ -99,6 +107,9 @@ button,input {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    @media (max-width: 380px){
+        flex-direction: column-reverse;
+    }
 
     p {
         display: flex;
@@ -113,7 +124,6 @@ button,input {
 }
 
 .game-board {
-    // outline: 2px solid red;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
@@ -121,7 +131,6 @@ button,input {
     background-color: black;
     gap: 3px;
     
-
     button {
         background-color: white;
         border: none;
@@ -136,9 +145,6 @@ button,input {
         }
     }
 }
-
-
-
 
 
 
@@ -157,7 +163,8 @@ button,input {
     
     form {
         display: block;
-        background-color: var(--background);
+        position: relative;
+        background-color: white;
         padding: 20px;
         border-radius: 10px;
         width: min(95%, 350px);
@@ -200,24 +207,24 @@ button,input {
     }
 
     button {
-        background-color: var(--primary);
+        background-color: transparent;
         padding: 10px 20px;
         margin: 10px 0;
-        border: none;
+        border: 2px solid black;
         border-radius: 20px;
-        color: white;
+        // color: white;
         font-size: 1.2rem;
         font-weight: bold;
         transition: 0.3s all;
 
         &#closeModalBtn {
-            background-color: rgba($color: red, $alpha: 0.7);
+            // background-color: rgba($color: red, $alpha: 0.7);
             &:hover {
-                background-color: rgb(128, 7, 7);
+                background-color: rgba(255, 0, 0, 0.5);
             }
         }
         &:hover {
-            background-color: var(--secondary);
+            background-color: rgba($color: #15a9ff, $alpha: 0.5);
         }
     }
 
@@ -226,7 +233,7 @@ button,input {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        background-color: var(--background);
+        background-color: white;
         padding: 20px;
         border-radius: 10px;
         font-size: 1.3rem;
@@ -308,3 +315,26 @@ button,input {
         opacity: 0;
     }
 }
+
+.github-profile {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    text-align: center;
+    color: white;
+    opacity: 0.5;
+    transition: 0.3s all;
+    a {
+        color: inherit; 
+        transition: 0.3s all;
+        text-decoration: none;
+        &:hover {
+            color: yellow;
+        }
+    }
+    &:hover {
+        opacity: 1;
+    }
+}
+

@@ -1,13 +1,4 @@
 @import url("https://fonts.googleapis.com/css2?family=Gloria+Hallelujah&display=swap");
-:root {
-  --primary: #a855f7;
-  --secondary: #6d28d9;
-  --cards-background: #f5f3ff;
-  --text-white: white;
-  --text-black: black;
-  --background: white;
-}
-
 * {
   box-sizing: border-box;
   margin: 0;
@@ -28,6 +19,10 @@ button, input {
   font-weight: inherit;
 }
 
+button {
+  cursor: pointer;
+}
+
 .container {
   display: grid;
   grid-template-columns: 1fr;
@@ -40,13 +35,21 @@ button, input {
 }
 .container header {
   display: flex;
+  flex-wrap: wrap;
   margin: 30px 0;
   justify-content: space-between;
   align-items: center;
   gap: 15px;
 }
 .container header h1 {
+  text-align: center;
   font-size: 2rem;
+}
+@media (max-width: 380px) {
+  .container header h1 {
+    order: -1;
+    width: 100%;
+  }
 }
 .container header .btn-header {
   position: relative;
@@ -86,6 +89,11 @@ button, input {
   justify-content: space-between;
   align-items: center;
   gap: 20px;
+}
+@media (max-width: 380px) {
+  .game-info {
+    flex-direction: column-reverse;
+  }
 }
 .game-info p {
   display: flex;
@@ -131,7 +139,8 @@ button, input {
 }
 .modal form {
   display: block;
-  background-color: var(--background);
+  position: relative;
+  background-color: white;
   padding: 20px;
   border-radius: 10px;
   width: min(95%, 350px);
@@ -171,31 +180,27 @@ button, input {
   padding: 0 5px;
 }
 .modal button {
-  background-color: var(--primary);
+  background-color: transparent;
   padding: 10px 20px;
   margin: 10px 0;
-  border: none;
+  border: 2px solid black;
   border-radius: 20px;
-  color: white;
   font-size: 1.2rem;
   font-weight: bold;
   transition: 0.3s all;
 }
-.modal button#closeModalBtn {
-  background-color: rgba(255, 0, 0, 0.7);
-}
 .modal button#closeModalBtn:hover {
-  background-color: rgb(128, 7, 7);
+  background-color: rgba(255, 0, 0, 0.5);
 }
 .modal button:hover {
-  background-color: var(--secondary);
+  background-color: rgba(21, 169, 255, 0.5);
 }
 .modal .winner-modal {
   display: none;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: var(--background);
+  background-color: white;
   padding: 20px;
   border-radius: 10px;
   font-size: 1.3rem;
@@ -269,6 +274,27 @@ button, input {
     transform: translateX(100%);
     opacity: 0;
   }
+}
+.github-profile {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  text-align: center;
+  color: white;
+  opacity: 0.5;
+  transition: 0.3s all;
+}
+.github-profile a {
+  color: inherit;
+  transition: 0.3s all;
+  text-decoration: none;
+}
+.github-profile a:hover {
+  color: yellow;
+}
+.github-profile:hover {
+  opacity: 1;
 }
 
 /*# sourceMappingURL=style.css.map */
