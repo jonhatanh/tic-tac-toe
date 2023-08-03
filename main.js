@@ -58,12 +58,14 @@ function playerFactory(mark) {
     // }
     const getMark = () => mark;
     const getWins = () => wins;
+    const addWin = () => wins++;
 
 
     return {
         getMark,
         // makeMove,
         getWins,
+        addWin,
     };
 }
 
@@ -94,6 +96,10 @@ const gameController = (function() {
         gameStatus.isLegalMove = board.addMark(activePlayer.getMark(), row, col);
         if(!gameStatus.isLegalMove) return gameStatus;
         gameStatus.winner = checkForWinner();
+        if(gameStatus.winner) {
+            activePlayer.addWin();
+            return gameStatus;
+        }
         gameStatus.draw = !gameStatus.winner && !board.haveRemainingSpots();
         switchPlayerTurn();
         return gameStatus;
@@ -128,7 +134,7 @@ const gameController = (function() {
         if (boardCopy[0][0] === activePlayer.getMark() &&
             boardCopy[1][1] === activePlayer.getMark() &&
             boardCopy[2][2] === activePlayer.getMark()){
-                return true;
+            return true;
         }
         if (boardCopy[0][2] === activePlayer.getMark() &&
         boardCopy[1][1] === activePlayer.getMark() &&
@@ -140,6 +146,8 @@ const gameController = (function() {
     }
 
     const getPlayerTurn = () => players.indexOf(activePlayer) + 1;
+    const getPlayerMark = () => activePlayer.getMark();
+    const getPlayersWins = () => [players[0].getWins(), players[1].getWins()];
     const getRound = () => round;
 
     return {
@@ -148,6 +156,8 @@ const gameController = (function() {
         getBoard: board.getBoard,
         getPlayerTurn,
         getRound,
+        getPlayerMark,
+        getPlayersWins,
     }
 
 })();
@@ -157,8 +167,9 @@ gameController.printPrivateProps();
 const displayController = (function() {
 
     const boardContainer = document.getElementById('game-board');
-    const playerTurnContainer = document.getElementById('playerTurn');
+    const playerTurnContainer = document.getElementById('player-turn');
     const roundContainer = document.getElementById('round');
+    const playersWinsContainer = document.getElementById('players-wins');
 
     const renderGameBoard = () => {
         boardContainer.textContent = "";
@@ -172,8 +183,13 @@ const displayController = (function() {
                 boardContainer.appendChild(button);
             }
         }
-        playerTurnContainer.textContent = `Player ${gameController.getPlayerTurn()}`;
+        playerTurnContainer.textContent = `Player ${gameController.getPlayerTurn()} (${gameController.getPlayerMark()})`;
         roundContainer.textContent = gameController.getRound();
+        const playersWins = gameController.getPlayersWins();
+        playersWinsContainer.innerHTML = `
+        <b>Player 1:</b> ${playersWins[0]}
+        <br>
+        <b>Player 2:</b> ${playersWins[1]}`;
     }
 
     const playRound = function (e) {
@@ -205,3 +221,52 @@ const displayController = (function() {
 })();
 
 displayController.renderGameBoard();
+
+
+//Modal
+const modal = document.getElementById('modal');
+const gameForm = document.getElementById('gameForm');
+const openModalBtn = document.getElementById('openModalBtn');
+const closeModalBtn = document.getElementById('closeModalBtn');
+openModalBtn.addEventListener('click', (e)=> {
+    modal.classList.add('show');
+    gameForm.classList.add('show');
+})
+closeModalBtn.addEventListener('click', (e)=> {
+    modal.classList.add('hidde');
+    gameForm.classList.add('hidde');
+})
+modal.addEventListener('animationend', (e) => {
+    if(e.animationName !== 'closeModal') return;
+    modal.classList.remove('show');
+    gameForm.classList.remove('show');
+    modal.classList.remove('hidde');
+    gameForm.classList.remove('hidde');
+})
+
+gameForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const formData = getFormData(e.target);
+    
+    const newBook = new Book(
+        formData.title,
+        formData.author,
+        formData.pages,
+        formData.status,
+        formData.cover,
+        )
+    console.log(formData);
+    e.target.reset();
+    library.addBookToLibrary(newBook);
+    library.showBooks();
+})
+function getFormData(form) {
+    const data = {
+        title: form.title.value.trim(),
+        author: form.author.value.trim(),
+        pages: form.pages.value,
+        status: form.status.value,
+        cover: form.cover.value.trim() === "" ? null : form.cover.value.trim(),
+    }
+    return data;
+}

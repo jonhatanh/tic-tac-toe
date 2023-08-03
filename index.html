@@ -5,29 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://kit.fontawesome.com/48026a7184.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Tic Tac Toe</h1>
+        <header>
+            <button id="openModalBtn" class="btn-header"><i class="fa-solid fa-clock-rotate-left"></i> <span>Reset</span></button>
+            <h1>Tic Tac Toe</h1>
+            <button class="btn-header"><i class="fa-solid fa-house"></i> <span>Home</span></button>
+        </header>
         <div class="game-info">
-            <p class="playerTurn">Turn:<span id="playerTurn"></span></p>
+            <p class="playerTurn">Turn:<span id="player-turn"></span></p>
             <p class="round">Round <span id="round"></span></p>
+            <p class="wins">Wins <span id="players-wins"></span></p>
         </div>
         <div id="game-board" class="game-board">
-            <!-- <div>X</div>
-            <div>X</div>
-            <div>X</div>
-            <div>O</div>
-            <div>O</div>
-            <div>O</div>
-            <div>X</div>
-            <div>X</div>
-            <div>X</div> -->
         </div>
 
-
+        
     </div>
-    
+
+    <div class="modal" id="modal">
+        <form id="gameForm">
+            <fieldset>
+                <legend>Player 1</legend>
+                <div class="form-item">
+                    <label for="player-1">Name</label>
+                    <input type="text" name="player-1" id="player-1" minlength="1" maxlength="99" placeholder="Player 1">
+                </div>
+                <div class="form-item">
+                    <label for="player-1-mark">Mark</label>
+                    <input type="text" name="player-1-mark" id="player-1-mark" minlength="1" maxlength="3" placeholder="X">
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Player 2</legend>
+                <div class="form-item">
+                    <label for="player-2">Name</label>
+                    <input type="text" name="player-2" id="player-2" minlength="1" maxlength="99" placeholder="Player 2">
+                </div>
+                <div class="form-item">
+                    <label for="player-2-mark">Mark</label>
+                    <input type="text" name="player-2-mark" id="player-2-mark" minlength="1" maxlength="3" placeholder="X">
+                </div>
+            </fieldset>
+            <div class="form-item">
+                <button id="addBookBtn" type="submit">Add</button>
+            </div>
+            <div class="form-item">
+                <button id="closeModalBtn" type="button">Cancel</button>
+            </div>
+        </form>
+    </div>
 
     <script src="main.js"></script>
 </body>
