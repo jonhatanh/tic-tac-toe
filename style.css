@@ -104,6 +104,9 @@ button, input {
   justify-content: center;
   align-items: center;
 }
+.game-board button.hover {
+  color: rgba(0, 0, 0, 0.4);
+}
 
 .modal {
   display: none;

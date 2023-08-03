@@ -113,6 +113,10 @@ button,input {
         display: flex;
         justify-content: center;
         align-items: center;
+
+        &.hover {
+            color: rgba($color: #000000, $alpha: 0.4);
+        }
     }
 }
 

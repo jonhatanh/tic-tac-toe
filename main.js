@@ -180,6 +180,7 @@ const displayController = (function() {
                 button.setAttribute('data-row', i);
                 button.setAttribute('data-col', j);
                 button.textContent = board[i][j] === null ? '' : board[i][j];
+                board[i][j] !== null && button.classList.add('selected');
                 boardContainer.appendChild(button);
             }
         }
@@ -213,6 +214,19 @@ const displayController = (function() {
     }
 
     boardContainer.addEventListener('click', playRound)
+
+    boardContainer.addEventListener('mouseenter', (e) => {
+        if(e.target.nodeName === 'BUTTON' && !e.target.classList.contains('selected')) {
+            e.target.textContent = gameController.getPlayerMark();
+            e.target.classList.add('hover');
+        }
+    }, true)
+    boardContainer.addEventListener('mouseleave', (e) => {
+        if(e.target.nodeName === 'BUTTON' && !e.target.classList.contains('selected')) {
+            e.target.textContent = '';
+            e.target.classList.remove('hover');
+        }
+    }, true)
 
     return {
         renderGameBoard,
