@@ -3,7 +3,6 @@
 
 
 function gameBoardFactory() {
-
     let board = [
         [null, null, null],
         [null, null, null],
@@ -17,10 +16,6 @@ function gameBoardFactory() {
     }
     const getBoard = () => copyBidiArray(board);
 
-    const printGameBoard = () => {
-        console.log(board);
-    }
-
     const addMark = (mark, row, col) => {
         if(
             (board[row][col] !== null) 
@@ -31,9 +26,7 @@ function gameBoardFactory() {
         return true;
     }
 
-    const haveRemainingSpots = () => {
-        return board.flat().includes(null);
-    }
+    const haveRemainingSpots = () => board.flat().includes(null);
 
     const resetBoard = () => {
         board = [
@@ -44,27 +37,21 @@ function gameBoardFactory() {
     }
 
     return {
-        printGameBoard,
         getBoard,
         addMark,
         haveRemainingSpots,
         resetBoard,
     }
-
 };
 
 function playerFactory(name, mark) {
     let wins = 0;
-    // const makeMove = (board, row, col) => {
-    //     const isLegalMove = board.addMark(mark, row, col);
-    //     return isLegalMove;
-    // }
+
     const getName = () => name;
     const getMark = () => mark;
     const getWins = () => wins;
     const addWin = () => wins++;
     const resetWins = () => wins = 0;
-
 
     return {
         getName,
@@ -94,17 +81,17 @@ function gameControllerFactory(player1, player2) {
         activePlayer = activePlayer === players[0] ? players[1] : players[0];
     }
 
+    const resetGameStatus = () => {
+        gameStatus.isLegalMove = false;
+        gameStatus.winner = false;
+        gameStatus.draw = false;
+    }
+
     const resetGame = () => {
         board.resetBoard();
         players.forEach(player => player.resetWins());
         round = 1;
         resetGameStatus();
-    }
-
-    const resetGameStatus = () => {
-        gameStatus.isLegalMove = false;
-        gameStatus.winner = false;
-        gameStatus.draw = false;
     }
 
     const nextRound = () => {
@@ -113,8 +100,6 @@ function gameControllerFactory(player1, player2) {
     }
 
     const playRound = (row, col) => {
-        if(gameStatus.winner || gameStatus.draw) return gameStatus;
-
         gameStatus.isLegalMove = board.addMark(activePlayer.getMark(), row, col);
         if(!gameStatus.isLegalMove) return gameStatus;
         gameStatus.winner = checkForWinner();
@@ -132,7 +117,6 @@ function gameControllerFactory(player1, player2) {
         return gameStatus;
     }
 
-
     const checkForWinner = () => {
         const boardCopy = board.getBoard();
         for(let i = 0; i < 3; i++) {
@@ -148,7 +132,6 @@ function gameControllerFactory(player1, player2) {
             boardCopy[2][i] === activePlayer.getMark()){
                 return true;
             }
-            
         }
         //Check in diagonal
         if (boardCopy[0][0] === activePlayer.getMark() &&
@@ -203,7 +186,6 @@ const displayController = (function() {
     const renderGameBoard = () => {
         boardContainer.textContent = "";
         const board = gameController.getBoard();
-        console.log(board);
         for(let i = 0; i < 3; i++) {
             for(let j = 0; j < 3; j++) {
                 const button = document.createElement('button');
@@ -214,6 +196,7 @@ const displayController = (function() {
                 boardContainer.appendChild(button);
             }
         }
+
         playerTurnContainer.textContent = `${gameController.getPlayerName()} (${gameController.getPlayerMark()})`;
         roundContainer.textContent = gameController.getRound();
         const playersNames = gameController.getPlayersNames();
@@ -229,27 +212,23 @@ const displayController = (function() {
         const row = e.target.dataset.row;
         const col = e.target.dataset.col;
         const gameStatus = gameController.playRound(row,col);
-        console.log(gameStatus);
         if(gameStatus.isLegalMove) {
             if(gameStatus.winner) {
-                modal.classList.remove('hidden');
-                modal.classList.add('show');
-                confirmWinnerModal.classList.add('show');
-                winnerNameSpan.textContent = gameController.getPlayerName();
-                gameController.nextRound();          
+                showWinnerModal(gameController.getPlayerName())
+                gameController.nextRound();
             } else if (gameStatus.draw) {
-                modal.classList.remove('hidden');
-                modal.classList.add('show');
-                confirmWinnerModal.classList.add('show');
-                winnerNameSpan.textContent = 'DRAW';
+                showWinnerModal('DRAW')
                 gameController.nextRound();    
-            } else {
-
             }
             renderGameBoard();
-        } else {
-            console.log('Illegal Move');
         }
+    }
+
+    const showWinnerModal = (winner) => {
+        modal.classList.remove('hidden');
+        modal.classList.add('show');
+        confirmWinnerModal.classList.add('show');
+        winnerNameSpan.textContent = winner;
     }
 
     boardContainer.addEventListener('click', playRound)
@@ -289,7 +268,6 @@ const displayController = (function() {
     })
     modal.addEventListener('animationend', (e) => {
         if(e.animationName !== 'closeModal') return;
-        console.log(e);
         modal.classList.remove('show');
         gameForm.classList.remove('show');
         confirmWinnerModal.classList.remove('show');
@@ -314,7 +292,7 @@ const displayController = (function() {
 
         const player1 = playerFactory(formData.player1Name, formData.player1Mark);
         const player2 = playerFactory(formData.player2Name, formData.player2Mark);
-        // e.target.reset();
+        
         createGame(player1,player2);
         modal.classList.add('hidde');
         gameForm.classList.add('hidde');
@@ -335,14 +313,11 @@ const displayController = (function() {
             ? 'Player 2' : data.player2Name;
         data.player2Mark = data.player2Mark === "" 
             ? 'O' : data.player2Mark;
-        console.log(data);
         return data;
     }
 
-
     return {
         createGame,
-        renderGameBoard,
     }
 
 })();
